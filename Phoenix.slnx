@@ -1,1 +1,11 @@
-<Solution />
+<Solution>
+  <Folder Name="/BFF/" />
+  <Folder Name="/CoreAPI/">
+    <Project Path="CoreAPI/Phoenix.CoreAPI/Phoenix.CoreAPI.csproj" Id="cee39f1c-5192-4177-9f62-b52821c26d65" />
+  </Folder>
+  <Folder Name="/Solution Items/">
+    <File Path=".editorconfig" />
+    <File Path="Directory.Build.props" />
+    <File Path="Directory.Packages.props" />
+  </Folder>
+</Solution>
