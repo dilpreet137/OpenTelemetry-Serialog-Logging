@@ -1,49 +1,20 @@
-using Serilog;
-using System.Globalization;
-using System.Reflection;
+var builder = WebApplication.CreateBuilder(args);
+var isDevEnvironment = builder.Environment.IsDevelopment();
 
-Log.Logger = new LoggerConfiguration()
-    .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture)
-    .Enrich.FromLogContext()
-    .CreateBootstrapLogger();
+builder.Services.AddControllers();
+builder.Services.AddOpenApi();
 
-try
+var app = builder.Build();
+
+if (isDevEnvironment)
 {
-    Log.Information("Starting Core API");
-
-    var builder = WebApplication.CreateBuilder(args);
-    var isDevEnvironment = builder.Environment.IsDevelopment();
-
-    builder.Services.AddControllers();
-    builder.Services.AddOpenApi();
-
-    var app = builder.Build();
-
-    if (isDevEnvironment)
-    {
-        app.MapOpenApi();
-    }
-
-    app.UseHttpsRedirection();
-
-    app.UseAuthorization();
-
-    app.MapControllers();
-
-    app.Run();
+    app.MapOpenApi();
 }
-catch (HostAbortedException hostAbortedExeption)
-{
-    if (Assembly.GetEntryAssembly()?.GetName().Name != "ef")
-    {
-        Log.Fatal(hostAbortedExeption, "Application terminated unexpectedly");
-    }
-}
-catch (Exception ex)
-{
-    Log.Fatal(ex, "Application terminated unexpectedly");
-}
-finally
-{
-    Log.CloseAndFlush();
-}
+
+app.UseHttpsRedirection();
+
+app.UseAuthorization();
+
+app.MapControllers();
+
+app.Run();
