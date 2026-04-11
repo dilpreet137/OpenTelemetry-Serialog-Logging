@@ -1,5 +1,10 @@
+using Phoenix.CoreAPI;
+using Serilog;
+
 var builder = WebApplication.CreateBuilder(args);
 var isDevEnvironment = builder.Environment.IsDevelopment();
+
+builder.ConfigureLogging();
 
 builder.Services.AddControllers();
 builder.Services.AddOpenApi();
@@ -10,6 +15,8 @@ if (isDevEnvironment)
 {
     app.MapOpenApi();
 }
+
+app.UseSerilogRequestLogging();
 
 app.UseHttpsRedirection();
 
