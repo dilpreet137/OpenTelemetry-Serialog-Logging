@@ -1,23 +1,49 @@
-var builder = WebApplication.CreateBuilder(args);
+using Serilog;
+using System.Globalization;
+using System.Reflection;
 
-// Add services to the container.
+Log.Logger = new LoggerConfiguration()
+    .WriteTo.Console(formatProvider: CultureInfo.InvariantCulture)
+    .Enrich.FromLogContext()
+    .CreateBootstrapLogger();
 
-builder.Services.AddControllers();
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
-
-var app = builder.Build();
-
-// Configure the HTTP request pipeline.
-if (app.Environment.IsDevelopment())
+try
 {
-    app.MapOpenApi();
+    Log.Information("Starting Core API");
+
+    var builder = WebApplication.CreateBuilder(args);
+    var isDevEnvironment = builder.Environment.IsDevelopment();
+
+    builder.Services.AddControllers();
+    builder.Services.AddOpenApi();
+
+    var app = builder.Build();
+
+    if (isDevEnvironment)
+    {
+        app.MapOpenApi();
+    }
+
+    app.UseHttpsRedirection();
+
+    app.UseAuthorization();
+
+    app.MapControllers();
+
+    app.Run();
 }
-
-app.UseHttpsRedirection();
-
-app.UseAuthorization();
-
-app.MapControllers();
-
-app.Run();
+catch (HostAbortedException hostAbortedExeption)
+{
+    if (Assembly.GetEntryAssembly()?.GetName().Name != "ef")
+    {
+        Log.Fatal(hostAbortedExeption, "Application terminated unexpectedly");
+    }
+}
+catch (Exception ex)
+{
+    Log.Fatal(ex, "Application terminated unexpectedly");
+}
+finally
+{
+    Log.CloseAndFlush();
+}
