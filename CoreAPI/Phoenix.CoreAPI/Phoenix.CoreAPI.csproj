@@ -9,6 +9,24 @@
     <PackageReference Include="OpenTelemetry.Instrumentation.Runtime" />
     <PackageReference Include="Serilog.AspNetCore" />
     <PackageReference Include="Serilog.Sinks.OpenTelemetry" />
+    <PackageReference Include="Swashbuckle.AspNetCore" />
+    <PackageReference Include="Swashbuckle.AspNetCore.SwaggerUI" />
   </ItemGroup>
+
+	<Target Name="GenerateSwaggerOnBuild" AfterTargets="Build">
+
+		<PropertyGroup>
+			<SwaggerOutputDir>$(SolutionDir)open-api</SwaggerOutputDir>
+			<SwaggerOutputFile>$(SwaggerOutputDir)\$(AssemblyName).json</SwaggerOutputFile>
+		</PropertyGroup>
+
+		<MakeDir Directories="$(SwaggerOutputDir)" />
+
+		<Exec Command="dotnet tool restore" />
+
+		<Exec Command="dotnet swagger tofile --output &quot;$(SwaggerOutputFile)&quot; &quot;$(TargetPath)&quot; v1"
+			  EnvironmentVariables="DOTNET_ROLL_FORWARD=LatestMajor" />
+
+	</Target>
 
 </Project>
